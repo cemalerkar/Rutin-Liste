@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rutin Düzenle</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="edit.js"></script>
+    <script type="module">
+
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, query, where, addDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js';
+
+
+        // Firebase yapılandırması (projenize göre doldurun)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDn1blxTVVpal72k2BuR-yPsdzM7h7BSr8",
+            authDomain: "bizimyilimiz.firebaseapp.com",
+            databaseURL:
+                "https://bizimyilimiz-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "bizimyilimiz",
+            storageBucket: "bizimyilimiz.appspot.com",
+            messagingSenderId: "569819222872",
+            appId: "1:569819222872:web:f4b0e2c206449116af8b2d",
+            measurementId: "G-3NL3RN2MCB",
+        };
+
+        // Firebase'i başlatma
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Rutin ekleme fonksiyonu
+        window.addRoutine = async function () {
+            const name = document.getElementById("routine-name").value;
+            const days = Array.from(document.querySelectorAll("#days input:checked")).map(
+                (checkbox) => parseInt(checkbox.value)
+            );
+
+            await addDoc(collection(db, "routines"), { name, days });
+            alert("Rutin eklendi!");
+            document.getElementById("routine-name").value = ""; // Girdi alanını temizle
+        }
+
+        // Seçilen günün rutinlerini gösterme
+        window.showRoutines = async function () {
+            const day = parseInt(document.getElementById("day-select").value);
+            const removeList = document.getElementById("remove-list");
+            removeList.innerHTML = "";
+
+            // Eğer gün seçilmemişse, kullanıcıyı uyar
+            if (isNaN(day)) {
+                alert("Lütfen bir gün seçin.");
+                return;
+            }
+
+            const q = query(collection(db, "routines"), where("days", "array-contains", day));
+            const snapshot = await getDocs(q);
+            snapshot.forEach((doc) => {
+                const li = document.createElement("li");
+                li.textContent = doc.data().name;
+
+                const removeButton = document.createElement("button");
+                removeButton.textContent = "-";
+                removeButton.onclick = async () => {
+                    await deleteDoc(doc.ref);
+                    li.remove();
+                    alert("Rutin silindi!");
+                };
+
+                li.appendChild(removeButton);
+                removeList.appendChild(li);
+            });
+        }
+
+        // Ana sayfaya geri dönme fonksiyonu
+        window.goBack = function () {
+            window.location.href = 'index.html'; // Ana sayfa dosya adı
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Rutin Düzenle</h1>
+
+    <h2>Yeni Rutin Ekle</h2>
+    <input type="text" id="routine-name" placeholder="Rutin Adı">
+    <div id="days">
+        <label><input type="checkbox" value="0"> Pazar</label>
+        <label><input type="checkbox" value="1"> Pazartesi</label>
+        <label><input type="checkbox" value="2"> Salı</label>
+        <label><input type="checkbox" value="3"> Çarşamba</label>
+        <label><input type="checkbox" value="4"> Perşembe</label>
+        <label><input type="checkbox" value="5"> Cuma</label>
+        <label><input type="checkbox" value="6"> Cumartesi</label>
+    </div>
+    <button onclick="addRoutine()">Rutin Ekle</button>
+
+    <h2>Rutin Çıkar</h2>
+    <select id="day-select" onchange="showRoutines()">
+        <option value="">Gün seçin</option>
+        <option value="0">Pazar</option>
+        <option value="1">Pazartesi</option>
+        <option value="2">Salı</option>
+        <option value="3">Çarşamba</option>
+        <option value="4">Perşembe</option>
+        <option value="5">Cuma</option>
+        <option value="6">Cumartesi</option>
+    </select>
+    <ul id="remove-list"></ul>
+
+    <!-- Geri Dön butonu -->
+    <button onclick="goBack()">Geri Dön</button>
+</body>
+
+</html>

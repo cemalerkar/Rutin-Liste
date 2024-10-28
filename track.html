@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rutin Takip</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="track.js"></script>
+    <script type="module">
+        // Firebase modüllerini yükleme
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, updateDoc, doc } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js';
+
+        // Firebase yapılandırması
+        const firebaseConfig = {
+            apiKey: "AIzaSyDn1blxTVVpal72k2BuR-yPsdzM7h7BSr8",
+            authDomain: "bizimyilimiz.firebaseapp.com",
+            databaseURL:
+                "https://bizimyilimiz-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "bizimyilimiz",
+            storageBucket: "bizimyilimiz.appspot.com",
+            messagingSenderId: "569819222872",
+            appId: "1:569819222872:web:f4b0e2c206449116af8b2d",
+            measurementId: "G-3NL3RN2MCB",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.onload = async function () {
+            const snapshot = await getDocs(collection(db, "routines"));
+            const routinesByDate = {}; // Tarihe göre rutinleri saklayacak
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const today = new Date();
+                const date = new Date(today.setDate(today.getDate() - today.getDay() + data.days[0])); // Haftanın gününe göre tarih
+                const formattedDate = date.toLocaleDateString("tr-TR", { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+                if (!routinesByDate[formattedDate]) {
+                    routinesByDate[formattedDate] = { completed: 0, total: 0, routines: [] };
+                }
+                routinesByDate[formattedDate].total++;
+                routinesByDate[formattedDate].routines.push(data.name);
+                if (data.completed) routinesByDate[formattedDate].completed++;
+            });
+
+            const routineStats = document.getElementById("routine-stats");
+            routineStats.innerHTML = ""; // Listeyi temizle
+
+            for (const [day, info] of Object.entries(routinesByDate)) {
+                const li = document.createElement("li");
+                const percentage = (info.completed / info.total) * 100 || 0;
+                li.textContent = `${day}: %${percentage.toFixed(2)} - Yapılanlar: ${info.completed}, Yapılmayanlar: ${info.total - info.completed}`;
+
+                // Renk ayarlama
+                if (percentage < 50) {
+                    li.style.backgroundColor = "red";
+                } else {
+                    li.style.backgroundColor = "green";
+                }
+
+                // Gizle/Göster butonu
+                const toggleButton = document.createElement("button");
+                toggleButton.textContent = "Gizle";
+                toggleButton.onclick = () => {
+                    if (li.classList.contains("hidden")) {
+                        li.classList.remove("hidden");
+                        toggleButton.textContent = "Gizle";
+                    } else {
+                        li.classList.add("hidden");
+                        toggleButton.textContent = "Göster";
+                    }
+                };
+
+                li.appendChild(toggleButton);
+                routineStats.appendChild(li);
+            }
+        }
+    </script>
+    <style>
+        #routine-stats {
+            list-style: none;
+            padding: 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Rutin Takip</h1>
+    <ul id="routine-stats"></ul>
+    <button onclick="location.href='index.html'">Geri Dön</button>
+</body>
+
+</html>

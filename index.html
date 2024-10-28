@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Günlük Rutinler</title>
+    <link rel="stylesheet" href="styles.css"> <!-- CSS dosyasını ekle -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, updateDoc, doc } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js';
+
+        // Firebase yapılandırması
+        const firebaseConfig = {
+            apiKey: "AIzaSyDn1blxTVVpal72k2BuR-yPsdzM7h7BSr8",
+            authDomain: "bizimyilimiz.firebaseapp.com",
+            databaseURL: "https://bizimyilimiz-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "bizimyilimiz",
+            storageBucket: "bizimyilimiz.appspot.com",
+            messagingSenderId: "569819222872",
+            appId: "1:569819222872:web:f4b0e2c206449116af8b2d",
+            measurementId: "G-3NL3RN2MCB",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.onload = async function () {
+            const today = new Date().getDay(); // Bugünün günü (0-6 arasında)
+            const snapshot = await getDocs(collection(db, "routines"));
+            let completed = 0;
+            let total = 0; // Toplam rutin sayısını takip et
+
+            const routineList = document.getElementById("routine-list");
+            routineList.innerHTML = ""; // Listeyi temizle
+
+            snapshot.forEach((docSnapshot) => {
+                const data = docSnapshot.data();
+                if (data.days && data.days.includes(today)) { // Sadece bugüne ait rutinleri göster
+                    total++; // Bugün eklenmiş rutinleri say
+                    const li = document.createElement("li");
+                    li.textContent = data.name; // Rutin adını göster
+
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.checked = data.completed || false; // Firebase'den gelen tamamlanma durumu
+                    if (checkbox.checked) {
+                        completed++; // Eğer tamamlandıysa, tamamlananları artır
+                        li.style.backgroundColor = "#d4edda"; // Tamamlandığında arka planı yeşil yap
+                    }
+                    checkbox.onclick = async () => {
+                        const routineDocRef = doc(db, "routines", docSnapshot.id); // Rutin doküman referansı
+                        await updateDoc(routineDocRef, {
+                            completed: checkbox.checked
+                            // Tamamlanma durumunu güncelle
+                        });
+                        // Arka plan rengi ayarlama
+                        li.style.backgroundColor = checkbox.checked ? "#d4edda" : "#fff"; // Yeşil arka plan için
+                        completed += checkbox.checked ? 1 : -1; // Tamamlananları say
+                        updateStatistics(completed, total);
+                    };
+
+                    li.prepend(checkbox); // Tik kutusunu başa ekle
+                    routineList.appendChild(li);
+                }
+            });
+
+            updateStatistics(completed, total);
+        }
+
+        function updateStatistics(completed, total) {
+            const statsText = document.getElementById("stats-text");
+            const progressCircle = document.getElementById("progress-circle");
+
+            const percentage = total > 0 ? (completed / total) * 100 : 0;
+
+            statsText.textContent = `${completed}/${total} Rutin tamamlandı`;
+            const circumference = 2 * Math.PI * 45;
+            const offset = circumference - (percentage / 100) * circumference;
+            progressCircle.style.strokeDashoffset = offset; // Daire grafiği için ayar
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Günlük Rutinler</h1>
+    <div id="stats-text"></div>
+    <div id="progress-circle-container">
+        <svg width="120" height="120">
+            <circle id="background-circle" cx="60" cy="60" r="50" stroke="#e0e0e0" stroke-width="12" fill="none">
+            </circle>
+            <circle id="progress-circle" cx="60" cy="60" r="50" stroke="#4CAF50" stroke-width="12" fill="none"
+                style="stroke-dasharray: 314.16; stroke-dashoffset: 0;"></circle>
+        </svg>
+    </div>
+    <ul id="routine-list"></ul>
+    <button onclick="location.href='edit.html'">Rutin Düzenle</button>
+    <button onclick="location.href='track.html'">Rutin Takip</button>
+</body>
+
+</html>

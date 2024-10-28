@@ -1,0 +1,149 @@
+/* GENEL STİLLER */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Arial", sans-serif;
+}
+
+body {
+  background-color: #d1d1d5;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  flex-direction: column;
+  padding: 0px 20px;
+}
+
+/* BAŞLIK VE BUTONLAR */
+h1 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 2rem;
+  text-align: center;
+}
+
+button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin: 10px 5px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* FORM VE LİSTELER */
+input[type="text"] {
+  padding: 10px;
+  font-size: 1rem;
+  width: 80%;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+ul {
+  list-style: none;
+  width: 80%;
+  margin-top: 20px;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+li input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+li button {
+  background-color: #e74c3c;
+  padding: 5px 10px;
+}
+
+li button:hover {
+  background-color: #c0392b;
+}
+
+/* DAİRE GRAFİĞİ */
+#progress-circle-container {
+  width: 120px;
+  height: 120px;
+  margin: 20px auto;
+  position: relative;
+}
+
+svg {
+  display: block;
+  margin: auto;
+}
+
+#progress-circle {
+  stroke: #4caf50;
+  stroke-width: 12;
+  transition: stroke-dashoffset 0.4s;
+}
+
+#background-circle {
+  stroke: #e0e0e0;
+  stroke-width: 12;
+}
+
+/* TRACKER SAYFASI */
+.tracker-day {
+  background-color: #fff;
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.tracker-day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+
+.tracker-day-header span {
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+}
+
+.tracker-day-header .green {
+  background-color: #4caf50;
+}
+
+.tracker-day-header .red {
+  background-color: #e74c3c;
+}
+
+.tracker-details {
+  margin-top: 10px;
+  display: none;
+  transition: all 0.3s;
+}
+
+.tracker-day.show .tracker-details {
+  display: block;
+}
+li.completed {
+  background-color: #d4edda; /* Yeşil arka plan rengi (tamamlananlar için) */
+}
